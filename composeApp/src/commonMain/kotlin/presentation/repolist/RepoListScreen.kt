@@ -22,71 +22,75 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cafe.adriel.voyager.core.screen.Screen
 import domain.model.Repo
 import kotlinproject.composeapp.generated.resources.Res
 import kotlinproject.composeapp.generated.resources.repo_list_title
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 
-@OptIn(ExperimentalResourceApi::class)
-@Composable
-fun RepoListScreen() {
-    val presenter: RepoListPresenter = remember { RepoListPresenter.create() }
-    val state: RepoListUiState by presenter.uiState.collectAsState()
+object RepoListScreen : Screen {
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        TopAppBar(
-            title = {
-                Text(text = stringResource(Res.string.repo_list_title))
-            }
-        )
-        Box(
+    @OptIn(ExperimentalResourceApi::class)
+    @Composable
+    override fun Content() {
+        val presenter: RepoListPresenter = remember { RepoListPresenter.create() }
+        val state: RepoListUiState by presenter.uiState.collectAsState()
+
+        Column(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            when {
-                state.emptyProgress -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .align(alignment = Alignment.Center)
-                    )
+            TopAppBar(
+                title = {
+                    Text(text = stringResource(Res.string.repo_list_title))
                 }
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                when {
+                    state.emptyProgress -> {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .align(alignment = Alignment.Center)
+                        )
+                    }
 
-                !state.emptyError.isNullOrBlank() -> {
-                    Text(
-                        text = state.emptyError.orEmpty(),
-                        modifier = Modifier
-                            .align(alignment = Alignment.Center)
-                    )
-                }
+                    !state.emptyError.isNullOrBlank() -> {
+                        Text(
+                            text = state.emptyError.orEmpty(),
+                            modifier = Modifier
+                                .align(alignment = Alignment.Center)
+                        )
+                    }
 
-                state.repos.isNotEmpty() -> {
-                    RepoList(list = state.repos)
+                    state.repos.isNotEmpty() -> {
+                        RepoList(list = state.repos)
+                    }
                 }
             }
         }
     }
-}
 
-@Composable
-private fun RepoList(list: List<Repo>) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize(),
-        contentPadding = PaddingValues(all = 15.dp)
-    ) {
-        items(
-            count = list.size
-        ) { index ->
-            RepoListItem(item = list[index])
+    @Composable
+    private fun RepoList(list: List<Repo>) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentPadding = PaddingValues(all = 15.dp)
+        ) {
+            items(
+                count = list.size
+            ) { index ->
+                RepoListItem(item = list[index])
 
-            if (index < list.size - 1) {
-                Spacer(
-                    modifier = Modifier.height(10.dp)
-                )
+                if (index < list.size - 1) {
+                    Spacer(
+                        modifier = Modifier.height(10.dp)
+                    )
+                }
             }
         }
     }
