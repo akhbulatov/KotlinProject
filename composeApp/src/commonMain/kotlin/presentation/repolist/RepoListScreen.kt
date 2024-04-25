@@ -1,5 +1,6 @@
 package presentation.repolist
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -23,17 +24,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import domain.model.Repo
 import kotlinproject.composeapp.generated.resources.Res
 import kotlinproject.composeapp.generated.resources.repo_list_title
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
+import presentation.repolist.repodetails.RepoDetailsScreen
+
+private typealias OnRepoItemClick = (Repo) -> Unit
 
 object RepoListScreen : Screen {
 
     @OptIn(ExperimentalResourceApi::class)
     @Composable
     override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
         val presenter: RepoListPresenter = remember { RepoListPresenter.create() }
         val state: RepoListUiState by presenter.uiState.collectAsState()
 
@@ -67,7 +74,12 @@ object RepoListScreen : Screen {
                     }
 
                     state.repos.isNotEmpty() -> {
-                        RepoList(list = state.repos)
+                        RepoList(
+                            list = state.repos,
+                            onRepoItemClick = { repo ->
+                                navigator.push(RepoDetailsScreen(repoId = repo.id))
+                            }
+                        )
                     }
                 }
             }
@@ -75,7 +87,7 @@ object RepoListScreen : Screen {
     }
 
     @Composable
-    private fun RepoList(list: List<Repo>) {
+    private fun RepoList(list: List<Repo>, onRepoItemClick: OnRepoItemClick) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize(),
@@ -84,7 +96,10 @@ object RepoListScreen : Screen {
             items(
                 count = list.size
             ) { index ->
-                RepoListItem(item = list[index])
+                RepoListItem(
+                    item = list[index],
+                    onRepoItemClick = onRepoItemClick
+                )
 
                 if (index < list.size - 1) {
                     Spacer(
@@ -97,10 +112,11 @@ object RepoListScreen : Screen {
 }
 
 @Composable
-private fun RepoListItem(item: Repo) {
+private fun RepoListItem(item: Repo, onRepoItemClick: OnRepoItemClick) {
     Card(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable { onRepoItemClick(item) },
         elevation = 10.dp
     ) {
         Column(

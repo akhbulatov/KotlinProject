@@ -1,5 +1,6 @@
 package data.network
 
+import data.network.model.RepoDetailsNetModel
 import data.network.model.RepoNetModel
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -12,6 +13,11 @@ class GitHubApi(
 
     suspend fun getRepos(): List<RepoNetModel> {
         val httpResponse: HttpResponse = httpClient.get(urlString = "repositories")
+        return httpResponse.body()
+    }
+
+    suspend fun getRepoDetails(repoId: Long): RepoDetailsNetModel {
+        val httpResponse: HttpResponse = httpClient.get(urlString = "repositories/$repoId")
         return httpResponse.body()
     }
 }

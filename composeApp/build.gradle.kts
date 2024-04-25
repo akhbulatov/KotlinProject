@@ -41,6 +41,9 @@ kotlin {
 
             implementation(libs.voyager.navigator)
 
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor)
+
             implementation(libs.napier)
         }
         androidMain.dependencies {
